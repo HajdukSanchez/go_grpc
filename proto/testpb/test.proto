@@ -1,0 +1,44 @@
+// Use Proto 3 as syntax
+syntax = "proto3";
+// Define the package name
+package test;
+// Set the go package name
+option go_package = "hajduksanchez.com/go/grpc;testpb";
+
+// Create the first structure
+message Test {
+	string id = 1;
+	string name = 2;
+}
+
+message Question {
+	string id = 1;
+	string answer = 2;
+	string question = 3;
+	string test_id = 4;
+}
+
+message SetQuestionResponse {
+	bool ok = 1;
+}
+
+// Request to get a Test
+message GetTestRequest {
+	string id = 1;
+}
+
+// Response when some test is setted
+message SetTestResponse {
+	string id = 1;
+	string name = 2;
+}
+
+// Create the services
+service TestService {
+	// Get an specific test
+	rpc GetTest (GetTestRequest) returns (Test);
+	// Set a new test
+	rpc SetTest (Test) returns (SetTestResponse);
+	// Stream service
+	rpc SetQuestions(stream Question) returns (SetQuestionResponse);
+}

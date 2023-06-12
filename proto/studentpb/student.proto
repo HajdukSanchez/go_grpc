@@ -1,0 +1,31 @@
+// Use Proto 3 as syntax
+syntax = "proto3";
+// Define the package name
+package student;
+// Set the go package name
+option go_package = "hajduksanchez.com/go/grpc;studentpb";
+
+// Create the first structure
+message Student {
+	string id = 1;
+	string name = 2;
+	int32 age = 3;
+}
+
+// Structure to create a request to get a student
+message GetStudentRequest {
+	string id = 1;
+}
+
+// Structure to create a response to set a student
+message SetStudentResponse {
+	string id = 1;
+}
+
+// Service to handle students
+service StudentService {
+	// Get a student
+	rpc GetStudent(GetStudentRequest) returns (Student);
+	// Set a student
+	rpc SetStudent(Student) returns (SetStudentResponse);
+}
