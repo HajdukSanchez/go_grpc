@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"hajduksanchez.com/go/grpc/models"
+	"github.com/hajduksanchez/go_grpc/models"
 )
 
 // Abstract definition of the repository

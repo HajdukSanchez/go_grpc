@@ -4,11 +4,11 @@ import (
 	"log"
 	"net"
 
+	"github.com/hajduksanchez/go_grpc/database"
+	"github.com/hajduksanchez/go_grpc/proto/testpb"
+	"github.com/hajduksanchez/go_grpc/server"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"hajduksanchez.com/go/grpc/database"
-	"hajduksanchez.com/go/grpc/proto/testpb"
-	"hajduksanchez.com/go/grpc/server"
 )
 
 func main() {

@@ -3,7 +3,7 @@ syntax = "proto3";
 // Define the package name
 package student;
 // Set the go package name
-option go_package = "hajduksanchez.com/go/grpc;studentpb";
+option go_package = "github.com/hajduksanchez/go_grpc/proto/studentpb";
 
 // Create the first structure
 message Student {

@@ -4,9 +4,9 @@ import (
 	"context"
 	"io"
 
-	"hajduksanchez.com/go/grpc/models"
-	"hajduksanchez.com/go/grpc/proto/testpb"
-	"hajduksanchez.com/go/grpc/repository"
+	"github.com/hajduksanchez/go_grpc/models"
+	"github.com/hajduksanchez/go_grpc/proto/testpb"
+	"github.com/hajduksanchez/go_grpc/repository"
 )
 
 type TestServer struct {
@@ -43,7 +43,7 @@ func (server *TestServer) SetTest(ctx context.Context, request *testpb.Test) (*t
 		return nil, err
 	}
 
-	return &testpb.SetTestResponse{Id: test.Id}, nil
+	return &testpb.SetTestResponse{Id: test.Id, Name: test.Name}, nil
 }
 
 func (server *TestServer) SetQuestions(stream testpb.TestService_SetQuestionsServer) error {

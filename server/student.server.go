@@ -3,9 +3,9 @@ package server
 import (
 	"context"
 
-	"hajduksanchez.com/go/grpc/models"
-	"hajduksanchez.com/go/grpc/proto/studentpb"
-	"hajduksanchez.com/go/grpc/repository"
+	"github.com/hajduksanchez/go_grpc/models"
+	"github.com/hajduksanchez/go_grpc/proto/studentpb"
+	"github.com/hajduksanchez/go_grpc/repository"
 )
 
 type StudentServer struct {

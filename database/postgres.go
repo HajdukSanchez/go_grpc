@@ -4,9 +4,8 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/hajduksanchez/go_grpc/models"
 	_ "github.com/lib/pq"
-
-	"hajduksanchez.com/go/grpc/models"
 )
 
 // Concrete definition of the Repository interface
