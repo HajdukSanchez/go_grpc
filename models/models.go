@@ -10,3 +10,10 @@ type Test struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`
 }
+
+type Question struct {
+	Id       string `json:"id"`
+	Question string `json:"question"`
+	Answers  string `json:"answers"`
+	TestId   string `json:"test_id"`
+}
