@@ -67,7 +67,7 @@ func (repo *PostgresRepository) SetQuestions(ctx context.Context, question *mode
 }
 
 // Enroll a new student to a specific examn (test)
-func (repo *PostgresRepository) SetEnrollmentStudent(ctx context.Context, enrollment *models.Enrollment) error {
+func (repo *PostgresRepository) EnrollStudent(ctx context.Context, enrollment *models.Enrollment) error {
 	_, err := repo.db.ExecContext(ctx, "INSERT INTO enrollments (student_id, test_id) VALUES ($1, $2)", enrollment.StudentId, enrollment.TestId)
 	return err
 }

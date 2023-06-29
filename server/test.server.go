@@ -3,8 +3,10 @@ package server
 import (
 	"context"
 	"io"
+	"time"
 
 	"github.com/hajduksanchez/go_grpc/models"
+	"github.com/hajduksanchez/go_grpc/proto/studentpb"
 	"github.com/hajduksanchez/go_grpc/proto/testpb"
 	"github.com/hajduksanchez/go_grpc/repository"
 )
@@ -80,4 +82,54 @@ func (server *TestServer) SetQuestions(stream testpb.TestService_SetQuestionsSer
 			})
 		}
 	}
+}
+
+func (server *TestServer) EnrollStudent(stream testpb.TestService_EnrollStudentServer) error {
+	for {
+		msg, err := stream.Recv()
+
+		if err == io.EOF {
+			return stream.SendAndClose(&testpb.SetEnrollStudentResponse{
+				Ok: true,
+			})
+		}
+		if err != nil {
+			return err
+		}
+
+		enrollment := &models.Enrollment{
+			StudentId: msg.GetStudentId(),
+			TestId:    msg.GetTestId(),
+		}
+		err = server.repository.EnrollStudent(context.Background(), enrollment)
+
+		if err != nil {
+			return stream.SendAndClose(&testpb.SetEnrollStudentResponse{
+				Ok: false,
+			})
+		}
+	}
+}
+
+func (server *TestServer) GetStudentsPerTest(request *testpb.GetStudentsPerTestRequest, stream testpb.TestService_GetStudentsPerTestServer) error {
+	students, err := server.repository.GetStudentsPerTest(context.Background(), request.GetTestId())
+
+	if err != nil {
+		return err
+	}
+
+	for _, student := range students {
+		student := &studentpb.Student{
+			Id:   student.Id,
+			Name: student.Name,
+			Age:  student.Age,
+		}
+		err := stream.Send(student)
+		time.Sleep(2 * time.Second) // Delay of 2 seconds for each stream send
+
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
