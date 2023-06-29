@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"log"
 
 	"github.com/hajduksanchez/go_grpc/models"
 	_ "github.com/lib/pq"
@@ -63,4 +64,40 @@ func (repo *PostgresRepository) GetTest(ctx context.Context, id string) (*models
 func (repo *PostgresRepository) SetQuestions(ctx context.Context, question *models.Question) error {
 	_, err := repo.db.ExecContext(ctx, "INSERT INTO questions (id, answer, question, test_id) VALUES ($1, $2, $3, $4)", question.Id, question.Answers, question.Question, question.TestId)
 	return err
+}
+
+// Enroll a new student to a specific examn (test)
+func (repo *PostgresRepository) SetEnrollmentStudent(ctx context.Context, enrollment *models.Enrollment) error {
+	_, err := repo.db.ExecContext(ctx, "INSERT INTO enrollments (student_id, test_id) VALUES ($1, $2)", enrollment.StudentId, enrollment.TestId)
+	return err
+}
+
+// Get all students enrolled to a specific examn (test)
+func (repo *PostgresRepository) GetStudentsPerTest(ctx context.Context, testId string) ([]*models.Student, error) {
+	rows, err := repo.db.QueryContext(ctx, "SELECT id, name, age FROM students WHERE id in (SELECT student_id FROM enrollments WHERE test_id = $1)", testId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		err := rows.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	var students []*models.Student // Set array of students
+	for rows.Next() {
+		var student = models.Student{}
+		if err = rows.Scan(&student.Id, &student.Name, &student.Age); err == nil {
+			students = append(students, &student) // Add new entry into the array
+		}
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return students, nil
 }

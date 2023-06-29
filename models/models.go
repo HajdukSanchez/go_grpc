@@ -17,3 +17,8 @@ type Question struct {
 	Answers  string `json:"answers"`
 	TestId   string `json:"test_id"`
 }
+
+type Enrollment struct {
+	StudentId string `json:"student_id"`
+	TestId    string `json:"test_id"`
+}
