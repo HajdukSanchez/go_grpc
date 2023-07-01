@@ -52,6 +52,12 @@ message GetStudentsPerTestRequest {
 	string test_id = 1;
 }
 
+// Request to take a test and send a question answer related
+message TakeTestRequest {
+	string answer = 1;
+	string test_id = 2;
+}
+
 // Create the services
 service TestService {
 	// Get an specific test
@@ -64,4 +70,6 @@ service TestService {
 	rpc EnrollStudent(stream EnrollStudentRequest) returns (SetEnrollStudentResponse);
 	// Stream to get student list
 	rpc GetStudentsPerTest(GetStudentsPerTestRequest) returns (stream student.Student);
+	// Bidirectional stream to get a student test
+	rpc TakeTest(stream TakeTestRequest) returns (stream Question);
 }

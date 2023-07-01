@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"io"
+	"log"
 	"time"
 
 	"github.com/hajduksanchez/go_grpc/models"
@@ -132,4 +133,52 @@ func (server *TestServer) GetStudentsPerTest(request *testpb.GetStudentsPerTestR
 		}
 	}
 	return nil
+}
+
+func (server *TestServer) TakeTest(stream testpb.TestService_TakeTestServer) error {
+	msg, err := stream.Recv() // TODO: Validate if this works or change as teacher
+	if err == io.EOF {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	questions, err := server.repository.GetQuestionsPerTest(context.Background(), msg.GetTestId())
+	if err != nil {
+		return err
+	}
+
+	i := 0                                   // Indicates the amount of questions answered
+	var currentQuestion = &models.Question{} // Current questions send
+
+	for {
+		if i < len(questions) {
+			currentQuestion = questions[i] // Set the current question
+		}
+
+		if i <= len(questions) {
+			questionToSend := &testpb.Question{
+				Id:       currentQuestion.Id,
+				Question: currentQuestion.Question,
+			}
+			err := stream.Send(questionToSend) // Send the question to the client
+
+			if err != nil {
+				return err
+			}
+
+			i++
+		}
+
+		answer, err := stream.Recv() // Receive the answer from the client
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+
+		log.Println("Answer received: ", answer.GetAnswer())
+	}
 }
