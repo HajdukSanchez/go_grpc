@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io"
 	"log"
 	"time"
 
@@ -21,7 +22,9 @@ func main() {
 
 	client := testpb.NewTestServiceClient(cc) // Create a new client for the test service from GRPC
 	// DoUnary(client)                           // Call the unary function
-	DoClientStreamin(client) // Call streaming function
+	// DoClientStreamin(client)                  // Call streaming function
+	// DoServerStreaming(client)                 // Call streaming function
+	DoBiDirectionalStreaming(client) // Call streaming function
 }
 
 // Unary function call to the server
@@ -81,4 +84,68 @@ func DoClientStreamin(c testpb.TestServiceClient) {
 	}
 	// Finally get response from streaming service
 	log.Printf("Response from SetQuestions: %v", msg)
+}
+
+// Streaming function call to the server
+func DoServerStreaming(c testpb.TestServiceClient) {
+	request := &testpb.GetStudentsPerTestRequest{
+		TestId: "t1",
+	}
+
+	stream, err := c.GetStudentsPerTest(context.Background(), request)
+	if err != nil {
+		log.Fatalf("Error while calling GetStudentsPerTest: %v", err)
+	}
+
+	for {
+		msg, err := stream.Recv() // Start receiving the stream messages from the server
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			log.Fatalf("Error while receiving stream from GetStudentsPerTest: %v", err)
+		}
+
+		log.Printf("Response from GetStudentsPerTest: %v", msg)
+	}
+}
+
+// Streaming function call to the server
+func DoBiDirectionalStreaming(c testpb.TestServiceClient) {
+	answer := &testpb.TakeTestRequest{
+		Answer: "This is the answer",
+		TestId: "t1",
+	}
+	numberOfQuestions := 4             // Questions to send
+	waitChannel := make(chan struct{}) // Channel to create sub routines
+
+	stream, err := c.TakeTest(context.Background())
+	if err != nil {
+		log.Fatalf("Error while calling TakeTest: %v", err)
+	}
+
+	// routine to send the answers
+	go func() {
+		for i := 0; i < numberOfQuestions; i++ {
+			stream.Send(answer)         // Send the answer
+			time.Sleep(2 * time.Second) // Sleep for 2 seconds
+		}
+	}()
+	// routine to receive the questions
+	go func() {
+		for {
+			response, err := stream.Recv() // Receive the question
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Fatalf("Error while receiving stream from TakeTest: %v", err)
+				break
+			}
+			log.Printf("Response from TakeTest: %v", response)
+		}
+		close(waitChannel) // Close channel when done receiving questions
+	}()
+	<-waitChannel // Wait for the channel to close
 }
